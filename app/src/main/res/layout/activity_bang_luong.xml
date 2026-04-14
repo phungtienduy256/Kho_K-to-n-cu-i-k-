@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="12dp">
+
+    <!-- FORM NHẬP BẢNG LƯƠNG -->
+    <TextView android:text="MÃ BẢNG LƯƠNG" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:textStyle="bold"/>
+    <EditText android:id="@+id/etMaBL" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="VD: BL001"
+        android:layout_marginBottom="6dp"/>
+
+    <TextView android:text="THÁNG (MM-yyyy)" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:textStyle="bold"/>
+    <EditText android:id="@+id/etThang" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="VD: 04-2026"
+        android:layout_marginBottom="6dp"/>
+
+    <TextView android:text="MÃ NHÂN VIÊN" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:textStyle="bold"/>
+    <EditText android:id="@+id/etMaNV" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="VD: NV001"
+        android:layout_marginBottom="6dp"/>
+
+    <TextView android:text="MÃ NV KẾ TOÁN" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:textStyle="bold"/>
+    <EditText android:id="@+id/etMaNVKT" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="VD: KT001"
+        android:layout_marginBottom="6dp"/>
+
+    <TextView android:text="LƯƠNG CƠ BẢN" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:textStyle="bold"/>
+    <EditText android:id="@+id/etLuongCoBan" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="0" android:inputType="numberDecimal"
+        android:layout_marginBottom="6dp"/>
+
+    <TextView android:text="TỔNG PHỤ CẤP" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:textStyle="bold"/>
+    <EditText android:id="@+id/etPhuCap" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="0" android:inputType="numberDecimal"
+        android:layout_marginBottom="6dp"/>
+
+    <TextView android:text="TỔNG KHẤU TRỪ" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:textStyle="bold"/>
+    <EditText android:id="@+id/etKhauTru" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:hint="0" android:inputType="numberDecimal"
+        android:layout_marginBottom="6dp"/>
+
+    <!-- Hiển thị tổng lương realtime -->
+    <TextView android:id="@+id/tvTongLuong"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Tổng lương: 0 đ" android:textSize="16sp"
+        android:textStyle="bold" android:textColor="#375623"
+        android:background="#E2EFDA" android:padding="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <Button android:id="@+id/btnThanhToan"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="THANH TOÁN" android:backgroundTint="#375623"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Danh sách bảng lương đã lưu -->
+    <ListView android:id="@+id/lvBangLuong"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+</LinearLayout>
+
+
