@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#FFF8DC">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🗄️  CHÈN DỮ LIỆU MẪU"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#7F4F00"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nhấn nút bên dưới để chèn dữ liệu mẫu vào tất cả bảng."
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"/>
+
+    <Button android:id="@+id/btnInsertSeed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CHÈN DỮ LIỆU MẪU"
+        android:backgroundTint="#7F4F00"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp"/>
+
+    <Button android:id="@+id/btnXoaHetDuLieu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="XÓA HẾT DỮ LIỆU (RESET)"
+        android:backgroundTint="#C00000"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView android:id="@+id/tvKetQua"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="13sp"
+        android:textColor="#375623"
+        android:gravity="center"/>
+</LinearLayout>
+

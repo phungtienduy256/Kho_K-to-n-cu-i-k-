@@ -1,12 +1,11 @@
-package com.example.kho_ketoan;
+package com.example.kho_ketoan.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.kho_ketoan.activity.BangLuongActivity;
-import com.example.kho_ketoan.activity.PhieuKhoActivity;
-import com.example.kho_ketoan.activity.ThongKeActivity;
+
+import com.example.kho_ketoan.R;
 
 public class MainActivity extends AppCompatActivity {
     @Override
@@ -25,14 +24,10 @@ public class MainActivity extends AppCompatActivity {
         // Nút chuyển màn hình Thống Kê
         ((Button) findViewById(R.id.btnThongKe)).setOnClickListener(v ->
                 startActivity(new Intent(this, ThongKeActivity.class)));
+
+        ((Button) findViewById(R.id.btnSeedData)).setOnClickListener(v ->
+                startActivity(new Intent(this, SeedDataActivity.class)));
+
     }
 }
-//PHIEU_KHO
-//Mã NCC phải lựa chọn từ bảng NHA_CUNGCAP; Mã sản phẩm lựa chọn từ bảng SAN_PHAM
 
-//LUONG
-//mã nhân viên phải lựa chọn từ bảng Nhan_Vien
-
-//THONGKE
-//Tháng ở phần tiền phiếu kho không hiển thị lựa chọn nào, nên đang không thấy tổng tiên kho
-//Thống kê cả ô tiền trong hóa đơn (HOA_DON)

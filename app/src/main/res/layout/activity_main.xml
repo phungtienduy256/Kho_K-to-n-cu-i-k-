@@ -30,4 +30,11 @@
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:text="Thống Kê"
         android:backgroundTint="#7030A0"/>
+
+    <Button android:id="@+id/btnSeedData"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="🗄️ Chèn Dữ Liệu Mẫu (Xóa sau khi test)"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#7F4F00"/>
+
 </LinearLayout>
