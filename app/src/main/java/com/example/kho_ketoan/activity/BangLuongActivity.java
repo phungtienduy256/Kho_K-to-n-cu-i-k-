@@ -13,7 +13,10 @@ import java.util.List;
 
 public class BangLuongActivity extends AppCompatActivity {
 
-    private EditText etMaBL, etThang, etMaNV, etMaNVKT;
+    private EditText etMaBL, etThang, etMaNVKT;
+    private Spinner  spinnerMaNV;
+    private List<String> listNV;
+
     private EditText etLuongCoBan, etPhuCap, etKhauTru;
     private TextView tvTongLuong;
     private ListView lvBangLuong;
@@ -28,7 +31,22 @@ public class BangLuongActivity extends AppCompatActivity {
         db           = new DatabaseHelper(this);
         etMaBL       = findViewById(R.id.etMaBL);
         etThang      = findViewById(R.id.etThang);
-        etMaNV       = findViewById(R.id.etMaNV);
+        spinnerMaNV = findViewById(R.id.spinnerMaNV);
+
+// Load danh sách Nhân Viên vào Spinner
+        listNV = db.getAllMaNhanVien();
+        if (listNV.isEmpty()) {
+            spinnerMaNV.setVisibility(android.view.View.GONE);
+            TextView tvNVEmpty = findViewById(R.id.tvNVEmpty);
+            tvNVEmpty.setVisibility(android.view.View.VISIBLE);
+        } else {
+            ArrayAdapter<String> adNV = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, listNV);
+            adNV.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item);
+            spinnerMaNV.setAdapter(adNV);
+        }
+
         etMaNVKT     = findViewById(R.id.etMaNVKT);
         etLuongCoBan = findViewById(R.id.etLuongCoBan);
         etPhuCap     = findViewById(R.id.etPhuCap);
@@ -74,10 +92,13 @@ public class BangLuongActivity extends AppCompatActivity {
     private void luuBangLuong() {
         String ma    = etMaBL.getText().toString().trim();
         String thang = etThang.getText().toString().trim();
-        String maNV  = etMaNV.getText().toString().trim();
+        String maNV = listNV.isEmpty() ? "" :
+                DatabaseHelper.layMaTuSpinner(
+                        spinnerMaNV.getSelectedItem().toString());
+
         String maNVKT = etMaNVKT.getText().toString().trim();
 
-        if (ma.isEmpty() || thang.isEmpty() || maNV.isEmpty()) {
+        if (ma.isEmpty() || thang.isEmpty() || listNV.isEmpty())  {
             Toast.makeText(this,
                     "Vui lòng nhập Mã BL, Tháng và Mã NV",
                     Toast.LENGTH_SHORT).show();
@@ -98,7 +119,7 @@ public class BangLuongActivity extends AppCompatActivity {
 
         if (ok) {
             // Xóa form sau khi lưu thành công
-            etMaBL.setText(""); etThang.setText(""); etMaNV.setText("");
+            etMaBL.setText(""); etThang.setText(""); etMaNVKT.setText("");
             etMaNVKT.setText(""); etLuongCoBan.setText("");
             etPhuCap.setText(""); etKhauTru.setText("");
             loadDanhSach();

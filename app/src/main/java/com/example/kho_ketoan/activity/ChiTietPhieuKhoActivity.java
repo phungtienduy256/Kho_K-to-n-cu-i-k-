@@ -91,9 +91,24 @@ public class ChiTietPhieuKhoActivity extends AppCompatActivity {
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(48, 24, 48, 0);
 
-        EditText etMaSP = new EditText(this);
-        etMaSP.setHint("Mã sản phẩm");
+// ── Thay EditText bằng Spinner lấy từ SAN_PHAM ──
+        List<String> listSP = db.getAllMaSanPham();
 
+// Label hướng dẫn
+        TextView lblSP = new TextView(this);
+        lblSP.setText("Chọn sản phẩm:");
+        lblSP.setTypeface(null, android.graphics.Typeface.BOLD);
+        lblSP.setPadding(0, 16, 0, 4);
+
+// Spinner sản phẩm
+        Spinner spinnerSP = new Spinner(this);
+        ArrayAdapter<String> adSP = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, listSP);
+        adSP.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item);
+        spinnerSP.setAdapter(adSP);
+
+// Các input còn lại
         EditText etSoLuong = new EditText(this);
         etSoLuong.setHint("Số lượng");
         etSoLuong.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
@@ -104,7 +119,9 @@ public class ChiTietPhieuKhoActivity extends AppCompatActivity {
                 android.text.InputType.TYPE_CLASS_NUMBER |
                         android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
-        layout.addView(etMaSP);
+// Add view
+        layout.addView(lblSP);
+        layout.addView(spinnerSP);
         layout.addView(etSoLuong);
         layout.addView(etDonGia);
 
@@ -112,24 +129,43 @@ public class ChiTietPhieuKhoActivity extends AppCompatActivity {
 
         if (isSua) {
             // Điền sẵn dữ liệu khi sửa
-            etMaSP.setText(chiTiet.getMaSanPham());
-            etMaSP.setEnabled(false); // Không cho đổi mã
             etSoLuong.setText(String.valueOf(chiTiet.getSoLuong()));
             etDonGia.setText(String.valueOf(chiTiet.getDonGia()));
+
+            // Set đúng sản phẩm trong Spinner
+            String maSPHienTai = chiTiet.getMaSanPham();
+            for (int k = 0; k < listSP.size(); k++) {
+                if (listSP.get(k).startsWith(maSPHienTai + " - ")
+                        || listSP.get(k).equals(maSPHienTai)) {
+                    spinnerSP.setSelection(k);
+                    break;
+                }
+            }
+
+            spinnerSP.setEnabled(false); // Không cho đổi sản phẩm khi sửa
         }
 
         new AlertDialog.Builder(this)
                 .setTitle(isSua ? "Sửa sản phẩm" : "Thêm sản phẩm")
                 .setView(layout)
                 .setPositiveButton("LƯU", (d, w) -> {
-                    String maSP  = etMaSP.getText().toString().trim();
+                    // Lấy mã sản phẩm từ Spinner
+                    String maSP = listSP.isEmpty() ? "" :
+                            DatabaseHelper.layMaTuSpinner(
+                                    spinnerSP.getSelectedItem().toString());
+
                     String slStr = etSoLuong.getText().toString().trim();
                     String dgStr = etDonGia.getText().toString().trim();
 
                     if (maSP.isEmpty() || slStr.isEmpty() || dgStr.isEmpty()) {
-                        Toast.makeText(this, "Vui lòng nhập đầy đủ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this,
+                                listSP.isEmpty() ?
+                                        "Chưa có sản phẩm nào! Hãy thêm sản phẩm trước." :
+                                        "Vui lòng điền đầy đủ số lượng và đơn giá",
+                                Toast.LENGTH_SHORT).show();
                         return;
                     }
+
 
                     int    soLuong = Integer.parseInt(slStr);
                     double donGia  = Double.parseDouble(dgStr);

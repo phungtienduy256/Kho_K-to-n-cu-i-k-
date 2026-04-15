@@ -7,9 +7,13 @@ import com.example.kho_ketoan.R;
 import com.example.kho_ketoan.database.DatabaseHelper;
 import com.example.kho_ketoan.model.PhieuKho;
 
+import java.util.List;
+
 public class AddEditPhieuKhoActivity extends AppCompatActivity {
 
-    private EditText etMaPhieu, etNgayLap, etMaNVKho, etMaNCC;
+    private EditText etMaPhieu, etNgayLap, etMaNVKho;
+    private Spinner  spinnerMaNCC;
+    private List<String> listNCC;
     private Spinner  spinnerLoai, spinnerTrangThai;
     private DatabaseHelper db;
     private String maPhieuEdit = null; // null = thêm mới, có giá trị = đang sửa
@@ -23,8 +27,23 @@ public class AddEditPhieuKhoActivity extends AppCompatActivity {
         etMaPhieu      = findViewById(R.id.etMaPhieu);
         etNgayLap      = findViewById(R.id.etNgayLap);
         etMaNVKho      = findViewById(R.id.etMaNVKho);
-        etMaNCC        = findViewById(R.id.etMaNCC);
         spinnerLoai    = findViewById(R.id.spinnerLoaiPhieu);
+        spinnerMaNCC = findViewById(R.id.spinnerMaNCC);
+
+// ── Load danh sách NCC vào Spinner ──
+        listNCC = db.getAllMaNCC();
+        if (listNCC.isEmpty()) {
+            // Không có NCC nào trong DB → hiện cảnh báo, ẩn spinner
+            spinnerMaNCC.setVisibility(android.view.View.GONE);
+            TextView tvNCCEmpty = findViewById(R.id.tvNCCEmpty);
+            tvNCCEmpty.setVisibility(android.view.View.VISIBLE);
+        } else {
+            ArrayAdapter<String> adNCC = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_item, listNCC);
+            adNCC.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item);
+            spinnerMaNCC.setAdapter(adNCC);
+        }
         spinnerTrangThai = findViewById(R.id.spinnerTrangThai);
 
         // ── Thiết lập Spinner Loại Phiếu ──
@@ -52,7 +71,14 @@ public class AddEditPhieuKhoActivity extends AppCompatActivity {
                 etMaPhieu.setText(p.getMaPhieu());
                 etNgayLap.setText(p.getNgayLapPhieu());
                 etMaNVKho.setText(p.getMaNVKho());
-                etMaNCC.setText(p.getMaNCC());
+                String maNccHienTai = p.getMaNCC();
+                for (int k = 0; k < listNCC.size(); k++) {
+                    if (listNCC.get(k).startsWith(maNccHienTai + " - ") ||
+                            listNCC.get(k).equals(maNccHienTai)) {
+                        spinnerMaNCC.setSelection(k);
+                        break;
+                    }
+                }
                 // Đặt vị trí spinner theo giá trị hiện tại
                 spinnerLoai.setSelection(
                         "XUAT".equals(p.getLoaiPhieu()) ? 1 : 0);
@@ -72,7 +98,10 @@ public class AddEditPhieuKhoActivity extends AppCompatActivity {
         String ma       = etMaPhieu.getText().toString().trim();
         String ngay     = etNgayLap.getText().toString().trim();
         String maNVKho  = etMaNVKho.getText().toString().trim();
-        String maNCC    = etMaNCC.getText().toString().trim();
+        String maNCC = listNCC.isEmpty() ? "" :
+                DatabaseHelper.layMaTuSpinner(
+                        spinnerMaNCC.getSelectedItem().toString());
+
         String loai     = spinnerLoai.getSelectedItem().toString();
         String trangThai = spinnerTrangThai.getSelectedItem().toString();
 

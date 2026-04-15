@@ -108,6 +108,49 @@
                 android:background="#FFFFFF"
                 android:padding="10dp"/>
         </LinearLayout>
+        <!-- ===== KHỐI 3: THỐNG KÊ TỔNG TIỀN BÁN HÀNG ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#FFF2CC"
+            android:padding="14dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🧾  THỐNG KÊ BÁN HÀNG (HÓA ĐƠN)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#7F4F00"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chọn tháng:"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"/>
+
+            <Spinner android:id="@+id/spinnerThangHD"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:drawable/btn_dropdown"
+                android:layout_marginBottom="10dp"/>
+
+            <TextView android:id="@+id/tvTongTienBanHang"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tổng tiền bán hàng: --"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#7F4F00"
+                android:background="#FFFFFF"
+                android:padding="10dp"/>
+
+        </LinearLayout>
+
 
     </LinearLayout>
 </ScrollView>
