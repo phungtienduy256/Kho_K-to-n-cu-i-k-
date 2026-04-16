@@ -20,11 +20,6 @@ public class ThongKeActivity extends AppCompatActivity {
     private TextView tvTongTienLuong;
     private List<String> dsThangLuong;
 
-    // Khối 3: Hóa Đơn
-    private Spinner  spinnerThangHD;
-    private TextView tvTongTienBanHang;
-    private List<String> dsThangHD;
-
     private DatabaseHelper db;
 
     @Override
@@ -35,24 +30,19 @@ public class ThongKeActivity extends AppCompatActivity {
 
         db = new DatabaseHelper(this);
 
-        spinnerThangPK      = findViewById(R.id.spinnerThangPK);
-        tvTongTienPhieuKho  = findViewById(R.id.tvTongTienPhieuKho);
-        tvTongTienNhap      = findViewById(R.id.tvTongTienNhap);
-        tvTongTienXuat      = findViewById(R.id.tvTongTienXuat);
-
-        spinnerThangLuong   = findViewById(R.id.spinnerThangLuong);
-        tvTongTienLuong     = findViewById(R.id.tvTongTienLuong);
-
-        spinnerThangHD      = findViewById(R.id.spinnerThangHD);
-        tvTongTienBanHang   = findViewById(R.id.tvTongTienBanHang);
+        spinnerThangPK     = findViewById(R.id.spinnerThangPK);
+        tvTongTienPhieuKho = findViewById(R.id.tvTongTienPhieuKho);
+        tvTongTienNhap     = findViewById(R.id.tvTongTienNhap);
+        tvTongTienXuat     = findViewById(R.id.tvTongTienXuat);
+        spinnerThangLuong  = findViewById(R.id.spinnerThangLuong);
+        tvTongTienLuong    = findViewById(R.id.tvTongTienLuong);
 
         setupKhoiPhieuKho();
         setupKhoiLuong();
-        setupKhoiHoaDon();
     }
 
     // ════════════════════════════════════
-    //  KHỐI 1: PHIẾU KHO (chỉ đã thanh toán, tách NHẬP/XUẤT)
+    //  KHỐI 1: PHIẾU KHO (chỉ đã thanh toán, tách NHẬP / XUẤT)
     // ════════════════════════════════════
     private void setupKhoiPhieuKho() {
         dsThangPK = db.getDanhSachThangPhieuKho();
@@ -80,11 +70,9 @@ public class ThongKeActivity extends AppCompatActivity {
                 tvTongTienPhieuKho.setText(
                         "Tổng tiền (" + thang + "): " +
                                 String.format("%,.0f", tongTat) + " đ");
-
                 tvTongTienNhap.setText(
                         "↓ Tiền nhập kho: " +
                                 String.format("%,.0f", tongNhap) + " đ");
-
                 tvTongTienXuat.setText(
                         "↑ Tiền xuất kho: " +
                                 String.format("%,.0f", tongXuat) + " đ");
@@ -103,6 +91,7 @@ public class ThongKeActivity extends AppCompatActivity {
             tvTongTienLuong.setText("Tổng tiền lương: Chưa có dữ liệu");
             return;
         }
+
         ArrayAdapter<String> ad = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, dsThangLuong);
         ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -113,32 +102,6 @@ public class ThongKeActivity extends AppCompatActivity {
                 double tong = db.getTongTienLuongTheoThang(dsThangLuong.get(pos));
                 tvTongTienLuong.setText(
                         "Tổng tiền lương (" + dsThangLuong.get(pos) + "):\n" +
-                                String.format("%,.0f", tong) + " đ");
-            }
-            public void onNothingSelected(AdapterView<?> p) {}
-        });
-    }
-
-    // ════════════════════════════════════
-    //  KHỐI 3: HÓA ĐƠN — FIX SPINNER TRỐNG + FORMAT MM/yy
-    // ════════════════════════════════════
-    private void setupKhoiHoaDon() {
-        dsThangHD = db.getDanhSachThangHoaDon();
-        if (dsThangHD.isEmpty()) {
-            spinnerThangHD.setEnabled(false);
-            tvTongTienBanHang.setText("Tổng tiền bán hàng: Chưa có dữ liệu");
-            return;
-        }
-        ArrayAdapter<String> ad = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, dsThangHD);
-        ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerThangHD.setAdapter(ad);
-
-        spinnerThangHD.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                double tong = db.getTongTienBanHangTheoThang(dsThangHD.get(pos));
-                tvTongTienBanHang.setText(
-                        "Tổng tiền bán hàng (" + dsThangHD.get(pos) + "):\n" +
                                 String.format("%,.0f", tong) + " đ");
             }
             public void onNothingSelected(AdapterView<?> p) {}

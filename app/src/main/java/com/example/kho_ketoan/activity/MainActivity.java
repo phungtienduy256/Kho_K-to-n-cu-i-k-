@@ -20,7 +20,5 @@ public class MainActivity extends AppCompatActivity {
 
         ((Button) findViewById(R.id.btnThongKe)).setOnClickListener(v ->
                 startActivity(new Intent(this, ThongKeActivity.class)));
-        ((Button) findViewById(R.id.btnSeedData)).setOnClickListener(v ->
-                startActivity(new Intent(this, SeedDataActivity.class)));
     }
 }

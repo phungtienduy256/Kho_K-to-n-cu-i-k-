@@ -9,7 +9,7 @@
         android:layout_height="wrap_content" android:hint="VD: BL001"
         android:layout_marginBottom="6dp"/>
 
-    <!-- FIX: Đổi định dạng tháng sang MM/yy cho khớp với Phiếu Kho -->
+    <!-- Định dạng tháng MM/yyyy để khớp với Thống Kê -->
     <TextView android:text="THÁNG" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:textStyle="bold"/>
     <EditText android:id="@+id/etThang" android:layout_width="match_parent"
@@ -38,19 +38,22 @@
     <TextView android:text="LƯƠNG CƠ BẢN" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:textStyle="bold"/>
     <EditText android:id="@+id/etLuongCoBan" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:hint="0" android:inputType="numberDecimal"
+        android:layout_height="wrap_content" android:hint="0"
+        android:inputType="numberDecimal"
         android:layout_marginBottom="6dp"/>
 
     <TextView android:text="TỔNG PHỤ CẤP" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:textStyle="bold"/>
     <EditText android:id="@+id/etPhuCap" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:hint="0" android:inputType="numberDecimal"
+        android:layout_height="wrap_content" android:hint="0"
+        android:inputType="numberDecimal"
         android:layout_marginBottom="6dp"/>
 
     <TextView android:text="TỔNG KHẤU TRỪ" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:textStyle="bold"/>
     <EditText android:id="@+id/etKhauTru" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:hint="0" android:inputType="numberDecimal"
+        android:layout_height="wrap_content" android:hint="0"
+        android:inputType="numberDecimal"
         android:layout_marginBottom="6dp"/>
 
     <TextView android:id="@+id/tvTongLuong"

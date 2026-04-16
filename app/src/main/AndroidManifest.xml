@@ -29,12 +29,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-        <activity android:name=".activity.SeedDataActivity" />
-        <!-- XÓA DÒNG NÀY KHI KHÔNG CẦN DỮ LIỆU MẪU NỮA -->
-
-
         <activity
             android:name=".activity.BangLuongActivity"
             android:exported="true">
