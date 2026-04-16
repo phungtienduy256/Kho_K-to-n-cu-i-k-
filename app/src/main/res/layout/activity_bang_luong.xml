@@ -3,17 +3,18 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:orientation="vertical" android:padding="12dp">
 
-    <!-- FORM NHẬP BẢNG LƯƠNG -->
     <TextView android:text="MÃ BẢNG LƯƠNG" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:textStyle="bold"/>
     <EditText android:id="@+id/etMaBL" android:layout_width="match_parent"
         android:layout_height="wrap_content" android:hint="VD: BL001"
         android:layout_marginBottom="6dp"/>
 
-    <TextView android:text="THÁNG (MM-yyyy)" android:layout_width="wrap_content"
+    <!-- FIX: Đổi định dạng tháng sang MM/yy cho khớp với Phiếu Kho -->
+    <TextView android:text="THÁNG" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:textStyle="bold"/>
     <EditText android:id="@+id/etThang" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:hint="VD: 04-2026"
+        android:layout_height="wrap_content" android:hint="VD: 04/2026"
+        android:inputType="text"
         android:layout_marginBottom="6dp"/>
 
     <TextView android:text="Nhân Viên" android:layout_width="wrap_content"
@@ -27,8 +28,6 @@
         android:text="Chưa có nhân viên nào. Vui lòng thêm NHAN_VIEN trước."
         android:textColor="#C00000" android:visibility="gone"
         android:layout_marginBottom="6dp"/>
-
-
 
     <TextView android:text="MÃ NV KẾ TOÁN" android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:textStyle="bold"/>
@@ -54,7 +53,6 @@
         android:layout_height="wrap_content" android:hint="0" android:inputType="numberDecimal"
         android:layout_marginBottom="6dp"/>
 
-    <!-- Hiển thị tổng lương realtime -->
     <TextView android:id="@+id/tvTongLuong"
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:text="Tổng lương: 0 đ" android:textSize="16sp"
@@ -67,11 +65,8 @@
         android:text="THANH TOÁN" android:backgroundTint="#375623"
         android:layout_marginBottom="8dp"/>
 
-    <!-- Danh sách bảng lương đã lưu -->
     <ListView android:id="@+id/lvBangLuong"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
 </LinearLayout>
-
-

@@ -15,13 +15,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // ═══════════════ CẤU HÌNH DATABASE ═══════════════
     private static final String DB_NAME    = "QuanLyKho.db";
-    private static final int    DB_VERSION = 2;
+    private static final int    DB_VERSION = 3; // Tăng version để reset dữ liệu cũ
 
     // ═══════════════ TÊN BẢNG ═══════════════
     public static final String TBL_PHIEU_KHO  = "PHIEU_KHO";
     public static final String TBL_CHI_TIET   = "CHI_TIET_PHIEU_KHO";
     public static final String TBL_BANG_LUONG = "BANG_LUONG";
     public static final String TBL_THONG_KE   = "THONG_KE";
+
+    // ═══════════════ BIỂU THỨC SQL TRÍCH THÁNG (MM/yy) ═══════════════
+    // Hỗ trợ 3 định dạng ngày: yyyy-MM-dd | dd/MM/yyyy | dd/MM/yy (mới)
+    private static final String THANG_PK =
+            "(CASE " +
+                    "WHEN ngayLapPhieu LIKE '____-__-__' THEN strftime('%m/%y',ngayLapPhieu) " +
+                    "WHEN ngayLapPhieu LIKE '__/__/____' THEN SUBSTR(ngayLapPhieu,4,2)||'/'||SUBSTR(ngayLapPhieu,9,2) " +
+                    "WHEN ngayLapPhieu LIKE '__/__/__'   THEN SUBSTR(ngayLapPhieu,4,2)||'/'||SUBSTR(ngayLapPhieu,7,2) " +
+                    "ELSE NULL END)";
+
+    private static final String THANG_HD =
+            "(CASE " +
+                    "WHEN ngayTaohoadon LIKE '____-__-__' THEN strftime('%m/%y',ngayTaohoadon) " +
+                    "WHEN ngayTaohoadon LIKE '__/__/____' THEN SUBSTR(ngayTaohoadon,4,2)||'/'||SUBSTR(ngayTaohoadon,9,2) " +
+                    "WHEN ngayTaohoadon LIKE '__/__/__'   THEN SUBSTR(ngayTaohoadon,4,2)||'/'||SUBSTR(ngayTaohoadon,7,2) " +
+                    "ELSE NULL END)";
 
     // ═══════════════ CONSTRUCTOR ═══════════════
     public DatabaseHelper(Context context) {
@@ -33,7 +49,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("PRAGMA foreign_keys = ON;");
 
-        // Tạo bảng PHIEU_KHO
         db.execSQL("CREATE TABLE IF NOT EXISTS PHIEU_KHO (" +
                 "maPhieu TEXT PRIMARY KEY, " +
                 "loaiPhieu TEXT, " +
@@ -44,7 +59,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "trangThaiTT TEXT DEFAULT 'Cho thanh toan'" +
                 ")");
 
-        // Tạo bảng CHI_TIET_PHIEU_KHO
         db.execSQL("CREATE TABLE IF NOT EXISTS CHI_TIET_PHIEU_KHO (" +
                 "maPhieu TEXT, " +
                 "maSanpham TEXT, " +
@@ -54,7 +68,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY (maPhieu) REFERENCES PHIEU_KHO(maPhieu)" +
                 ")");
 
-        // Tạo bảng BANG_LUONG
         db.execSQL("CREATE TABLE IF NOT EXISTS BANG_LUONG (" +
                 "maBangLuong TEXT PRIMARY KEY, " +
                 "thang TEXT, " +
@@ -66,7 +79,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "maNVKeToan TEXT" +
                 ")");
 
-        // Tạo bảng THONG_KE
         db.execSQL("CREATE TABLE IF NOT EXISTS THONG_KE (" +
                 "maThongKe TEXT PRIMARY KEY, " +
                 "thang TEXT, " +
@@ -75,7 +87,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "maPhieu TEXT, " +
                 "maBangLuong TEXT" +
                 ")");
-        // ── Tạo bảng NHA_CUNG_CAP ──
+
         db.execSQL("CREATE TABLE IF NOT EXISTS NHA_CUNG_CAP (" +
                 "maNCC TEXT PRIMARY KEY, " +
                 "tenNCC TEXT NOT NULL, " +
@@ -85,7 +97,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "trangThai TEXT DEFAULT 'Dang hop tac'" +
                 ")");
 
-// ── Tạo bảng SAN_PHAM ──
         db.execSQL("CREATE TABLE IF NOT EXISTS SAN_PHAM (" +
                 "maSanpham TEXT PRIMARY KEY, " +
                 "tenSanpham TEXT NOT NULL, " +
@@ -101,7 +112,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "FOREIGN KEY (maNCC) REFERENCES NHA_CUNG_CAP(maNCC)" +
                 ")");
 
-// ── Tạo bảng NHAN_VIEN ──
         db.execSQL("CREATE TABLE IF NOT EXISTS NHAN_VIEN (" +
                 "maNhanVien TEXT PRIMARY KEY, " +
                 "hoTen TEXT NOT NULL, " +
@@ -113,7 +123,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "tenDangnhap TEXT" +
                 ")");
 
-// ── Tạo bảng HOA_DON ──
         db.execSQL("CREATE TABLE IF NOT EXISTS HOA_DON (" +
                 "maHoadon TEXT PRIMARY KEY, " +
                 "maKhachHang TEXT, " +
@@ -123,8 +132,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "trangThaiDH TEXT DEFAULT 'Cho duyet', " +
                 "lyDoHuy TEXT" +
                 ")");
-
-
     }
 
     // ═══════════════ NÂNG CẤP DB ═══════════════
@@ -145,59 +152,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //              CRUD PHIEU_KHO
     // ════════════════════════════════════════════════
 
-    /** Thêm phiếu kho mới vào DB */
     public boolean themPhieuKho(PhieuKho p) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put("maPhieu",     p.getMaPhieu());
-        cv.put("loaiPhieu",   p.getLoaiPhieu());
-        cv.put("ngayLapPhieu",p.getNgayLapPhieu());
-        cv.put("tongTien",    p.getTongTien());
-        cv.put("maNVKho",     p.getMaNVKho());
-        cv.put("maNCC",       p.getMaNCC());
-        cv.put("trangThaiTT", p.getTrangThaiTT());
+        cv.put("maPhieu",      p.getMaPhieu());
+        cv.put("loaiPhieu",    p.getLoaiPhieu());
+        cv.put("ngayLapPhieu", p.getNgayLapPhieu());
+        cv.put("tongTien",     p.getTongTien());
+        cv.put("maNVKho",      p.getMaNVKho());
+        cv.put("maNCC",        p.getMaNCC());
+        cv.put("trangThaiTT",  p.getTrangThaiTT());
         long result = db.insert("PHIEU_KHO", null, cv);
         db.close();
-        return result != -1; // -1 = thất bại
+        return result != -1;
     }
 
-    /** Lấy toàn bộ danh sách phiếu kho */
     public List<PhieuKho> getAllPhieuKho() {
         List<PhieuKho> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery("SELECT * FROM PHIEU_KHO ORDER BY ngayLapPhieu DESC", null);
         if (c.moveToFirst()) {
-            do {
-                list.add(cursorToPhieuKho(c));
-            } while (c.moveToNext());
+            do { list.add(cursorToPhieuKho(c)); } while (c.moveToNext());
         }
         c.close(); db.close();
         return list;
     }
-    // 1. Thống kê tiền kho (tổng tiền các phiếu nhập)
-    public double getTongTienKho() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        // Giả sử bảng CHI_TIET_PHIEU_KHO có cột thanhTien hoặc (soLuong * donGia)
-        // Và lọc theo loại phiếu 'NHAP'
-        Cursor cursor = db.rawQuery("SELECT SUM(soLuong * donGia) FROM CHI_TIET_PHIEU_KHO " +
-                "JOIN PHIEU_KHO ON CHI_TIET_PHIEU_KHO.maPhieu = PHIEU_KHO.maPhieu " +
-                "WHERE loaiPhieu = 'NHAP'", null);
-        double tong = 0;
-        if (cursor.moveToFirst()) tong = cursor.getDouble(0);
-        cursor.close();
-        return tong;
-    }
 
-    // 2. Thống kê tiền bán hàng từ bảng HOA_DON
-    public double getTongTienBanHang() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT SUM(tongTienTT) FROM HOA_DON", null);
-        double tong = 0;
-        if (cursor.moveToFirst()) tong = cursor.getDouble(0);
-        cursor.close();
-        return tong;
-    }
-    /** Tìm kiếm phiếu kho theo mã hoặc loại phiếu */
     public List<PhieuKho> timKiemPhieuKho(String keyword) {
         List<PhieuKho> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -211,7 +191,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    /** Lấy 1 phiếu kho theo mã (dùng khi mở màn hình sửa) */
     public PhieuKho getPhieuKhoById(String maPhieu) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(
@@ -222,36 +201,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return p;
     }
 
-    /** Sửa thông tin phiếu kho */
+    /**
+     * FIX: Không cập nhật tongTien trong suaPhieuKho.
+     * tongTien chỉ được quản lý bởi capNhatTongTienPhieu().
+     * Trước đây bug là tongTien bị ghi đè = 0 khi sửa phiếu.
+     */
     public boolean suaPhieuKho(PhieuKho p) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put("loaiPhieu",   p.getLoaiPhieu());
-        cv.put("ngayLapPhieu",p.getNgayLapPhieu());
-        cv.put("tongTien",    p.getTongTien());
-        cv.put("maNVKho",     p.getMaNVKho());
-        cv.put("maNCC",       p.getMaNCC());
-        cv.put("trangThaiTT", p.getTrangThaiTT());
+        cv.put("loaiPhieu",    p.getLoaiPhieu());
+        cv.put("ngayLapPhieu", p.getNgayLapPhieu());
+        // KHÔNG cập nhật tongTien ở đây — tránh bug reset về 0
+        cv.put("maNVKho",      p.getMaNVKho());
+        cv.put("maNCC",        p.getMaNCC());
+        cv.put("trangThaiTT",  p.getTrangThaiTT());
         int rows = db.update("PHIEU_KHO", cv, "maPhieu=?", new String[]{p.getMaPhieu()});
         db.close();
         return rows > 0;
     }
 
-    /**
-     * Xóa phiếu kho.
-     * QUAN TRỌNG: Phải xóa CHI_TIET trước để tránh lỗi FK constraint.
-     */
     public boolean xoaPhieuKho(String maPhieu) {
         SQLiteDatabase db = this.getWritableDatabase();
-        // Bước 1: Xóa chi tiết phiếu kho trước
         db.delete("CHI_TIET_PHIEU_KHO", "maPhieu=?", new String[]{maPhieu});
-        // Bước 2: Xóa phiếu kho chính
         int rows = db.delete("PHIEU_KHO", "maPhieu=?", new String[]{maPhieu});
         db.close();
         return rows > 0;
     }
 
-    /** Helper: chuyển Cursor thành đối tượng PhieuKho */
     private PhieuKho cursorToPhieuKho(Cursor c) {
         return new PhieuKho(
                 c.getString(c.getColumnIndexOrThrow("maPhieu")),
@@ -268,7 +244,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //           CRUD CHI_TIET_PHIEU_KHO
     // ════════════════════════════════════════════════
 
-    /** Thêm 1 sản phẩm vào chi tiết phiếu, sau đó cập nhật tongTien */
     public boolean themChiTiet(ChiTietPhieuKho ct) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -279,13 +254,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result = db.insert("CHI_TIET_PHIEU_KHO", null, cv);
         db.close();
         if (result != -1) {
-            capNhatTongTienPhieu(ct.getMaPhieu()); // Tự cập nhật lại tongTien
+            capNhatTongTienPhieu(ct.getMaPhieu());
             return true;
         }
         return false;
     }
 
-    /** Lấy danh sách chi tiết theo maPhieu */
     public List<ChiTietPhieuKho> getChiTietTheoPhieu(String maPhieu) {
         List<ChiTietPhieuKho> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -306,7 +280,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    /** Sửa số lượng và đơn giá của chi tiết, sau đó cập nhật tongTien */
     public boolean suaChiTiet(ChiTietPhieuKho ct) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -320,7 +293,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    /** Xóa 1 dòng chi tiết, sau đó cập nhật tongTien */
     public boolean xoaChiTiet(String maPhieu, String maSanPham) {
         SQLiteDatabase db = this.getWritableDatabase();
         int rows = db.delete("CHI_TIET_PHIEU_KHO",
@@ -331,11 +303,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return false;
     }
 
-    /**
-     * Tự cập nhật tongTien trong PHIEU_KHO.
-     * Gọi mỗi khi thêm/sửa/xóa 1 dòng chi tiết.
-     * tongTien = SUM(soLuong * donGia) WHERE maPhieu = ?
-     */
     public void capNhatTongTienPhieu(String maPhieu) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(
@@ -352,24 +319,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //              CRUD BANG_LUONG
     // ════════════════════════════════════════════════
 
-    /** Thêm bảng lương mới */
     public boolean themBangLuong(BangLuong bl) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put("maBangLuong",  bl.getMaBangLuong());
-        cv.put("thang",        bl.getThang());
-        cv.put("luongCoBan",   bl.getLuongCoBan());
-        cv.put("tongPhuCap",   bl.getTongPhuCap());
-        cv.put("tongKhauTru",  bl.getTongKhauTru());
-        cv.put("tongLuong",    bl.getTongLuong());
-        cv.put("maNhanVien",   bl.getMaNhanVien());
-        cv.put("maNVKeToan",   bl.getMaNVKeToan());
+        cv.put("maBangLuong", bl.getMaBangLuong());
+        cv.put("thang",       bl.getThang());
+        cv.put("luongCoBan",  bl.getLuongCoBan());
+        cv.put("tongPhuCap",  bl.getTongPhuCap());
+        cv.put("tongKhauTru", bl.getTongKhauTru());
+        cv.put("tongLuong",   bl.getTongLuong());
+        cv.put("maNhanVien",  bl.getMaNhanVien());
+        cv.put("maNVKeToan",  bl.getMaNVKeToan());
         long r = db.insert("BANG_LUONG", null, cv);
         db.close();
         return r != -1;
     }
 
-    /** Lấy tất cả bảng lương */
     public List<BangLuong> getAllBangLuong() {
         List<BangLuong> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -381,7 +346,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    /** Lấy 1 bảng lương theo mã */
     public BangLuong getBangLuongById(String maBangLuong) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(
@@ -407,72 +371,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // ════════════════════════════════════════════════
-    //              QUERY THỐNG KÊ
+    //              QUERY THỐNG KÊ — PHIẾU KHO
     // ════════════════════════════════════════════════
 
     /**
-     * Lấy danh sách tháng duy nhất từ cả PHIEU_KHO và BANG_LUONG.
-     * Dùng để đổ vào Spinner chọn tháng ở màn hình ThongKe.
-     */
-    public List<String> getDanhSachThang() {
-        List<String> list = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        // strftime('%m-%Y', ngayLapPhieu) chuyển ngày sang định dạng MM-yyyy
-        String q = "SELECT DISTINCT strftime('%m-%Y', ngayLapPhieu) AS thang " +
-                "FROM PHIEU_KHO WHERE thang IS NOT NULL " +
-                "UNION " +
-                "SELECT DISTINCT thang FROM BANG_LUONG WHERE thang IS NOT NULL " +
-                "ORDER BY thang DESC";
-        Cursor c = db.rawQuery(q, null);
-        if (c.moveToFirst()) {
-            do { list.add(c.getString(0)); } while (c.moveToNext());
-        }
-        c.close(); db.close();
-        return list;
-    }
-
-    /**
-     * Lấy danh sách tháng từ PHIEU_KHO.
-     * Hỗ trợ 2 định dạng ngày phổ biến:
-     *   'yyyy-MM-dd' (VD: 2026-04-14) → strftime trả về '04-2026'
-     *   'dd/MM/yyyy' (VD: 14/04/2026) → dùng SUBSTR thủ công
+     * Lấy danh sách tháng MM/yy từ các phiếu ĐÃ THANH TOÁN.
+     * Hỗ trợ 3 định dạng ngày: yyyy-MM-dd | dd/MM/yyyy | dd/MM/yy
      */
     public List<String> getDanhSachThangPhieuKho() {
         List<String> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        // CASE: nếu ngày chứa '-' (yyyy-MM-dd) thì dùng strftime
-        //       nếu ngày chứa '/' (dd/MM/yyyy) thì lấy SUBSTR(6,2)+'-'+SUBSTR(7,4)
-        String q = "SELECT DISTINCT " +
-                "CASE " +
-                "  WHEN ngayLapPhieu LIKE '____-__-__' " +
-                "       THEN strftime('%m-%Y', ngayLapPhieu) " +
-                "  WHEN ngayLapPhieu LIKE '__/__/____' " +
-                "       THEN SUBSTR(ngayLapPhieu,4,2)||'-'||SUBSTR(ngayLapPhieu,7,4) " +
-                "  ELSE NULL " +
-                "END AS thang " +
+        String q = "SELECT DISTINCT " + THANG_PK + " AS thang " +
                 "FROM PHIEU_KHO " +
                 "WHERE ngayLapPhieu IS NOT NULL AND ngayLapPhieu != '' " +
-                "ORDER BY thang DESC";
-        Cursor c = db.rawQuery(q, null);
-        if (c.moveToFirst()) {
-            do {
-                String t = c.getString(0);
-                if (t != null && !t.isEmpty()) list.add(t);
-            } while (c.moveToNext());
-        }
-        c.close(); db.close();
-        return list;
-    }
-    /**
-     * Lấy danh sách tháng chỉ từ BANG_LUONG.
-     * Dùng cho Spinner khối Thống Kê Lương.
-     * thang đã lưu sẵn dạng MM-yyyy, ví dụ: 04-2026
-     */
-    public List<String> getDanhSachThangBangLuong() {
-        List<String> list = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        String q = "SELECT DISTINCT thang FROM BANG_LUONG " +
-                "WHERE thang IS NOT NULL AND thang != '' " +
+                "  AND trangThaiTT = 'Đã thanh toán' " +
                 "ORDER BY thang DESC";
         Cursor c = db.rawQuery(q, null);
         if (c.moveToFirst()) {
@@ -485,25 +397,82 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    /** Tính tổng tongTien của PHIEU_KHO trong tháng chỉ định (MM-yyyy) */
+    /**
+     * Tổng tongTien của tất cả phiếu ĐÃ THANH TOÁN trong tháng MM/yy.
+     */
     public double getTongTienPhieuKhoTheoThang(String thang) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String q = "SELECT IFNULL(SUM(tongTien), 0) FROM PHIEU_KHO WHERE " +
-                "(CASE " +
-                "  WHEN ngayLapPhieu LIKE '____-__-__' " +
-                "       THEN strftime('%m-%Y', ngayLapPhieu) " +
-                "  WHEN ngayLapPhieu LIKE '__/__/____' " +
-                "       THEN SUBSTR(ngayLapPhieu,4,2)||'-'||SUBSTR(ngayLapPhieu,7,4) " +
-                "  ELSE NULL END) = ?";
-        Cursor c = db.rawQuery(q, new String[]{thang});
+        Cursor c = db.rawQuery(
+                "SELECT IFNULL(SUM(tongTien),0) FROM PHIEU_KHO " +
+                        "WHERE " + THANG_PK + " = ? " +
+                        "  AND trangThaiTT = 'Đã thanh toán'",
+                new String[]{thang});
         double total = 0;
         if (c.moveToFirst()) total = c.getDouble(0);
         c.close(); db.close();
         return total;
     }
 
+    /**
+     * Tổng tongTien phiếu NHẬP đã thanh toán trong tháng MM/yy.
+     */
+    public double getTongTienNhapTheoThang(String thang) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT IFNULL(SUM(tongTien),0) FROM PHIEU_KHO " +
+                        "WHERE " + THANG_PK + " = ? " +
+                        "  AND trangThaiTT = 'Đã thanh toán' " +
+                        "  AND loaiPhieu = 'NHAP'",
+                new String[]{thang});
+        double total = 0;
+        if (c.moveToFirst()) total = c.getDouble(0);
+        c.close(); db.close();
+        return total;
+    }
 
-    /** Tính tổng tongLuong của BANG_LUONG trong tháng chỉ định (MM-yyyy) */
+    /**
+     * Tổng tongTien phiếu XUẤT đã thanh toán trong tháng MM/yy.
+     */
+    public double getTongTienXuatTheoThang(String thang) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT IFNULL(SUM(tongTien),0) FROM PHIEU_KHO " +
+                        "WHERE " + THANG_PK + " = ? " +
+                        "  AND trangThaiTT = 'Đã thanh toán' " +
+                        "  AND loaiPhieu = 'XUAT'",
+                new String[]{thang});
+        double total = 0;
+        if (c.moveToFirst()) total = c.getDouble(0);
+        c.close(); db.close();
+        return total;
+    }
+
+    // ════════════════════════════════════════════════
+    //              QUERY THỐNG KÊ — LƯƠNG
+    // ════════════════════════════════════════════════
+
+    /**
+     * Lấy danh sách tháng MM/yy từ BANG_LUONG.
+     * thang được lưu thẳng dạng MM/yy (VD: 04/26).
+     */
+    public List<String> getDanhSachThangBangLuong() {
+        List<String> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT DISTINCT thang FROM BANG_LUONG " +
+                        "WHERE thang IS NOT NULL AND thang != '' " +
+                        "ORDER BY thang DESC", null);
+        if (c.moveToFirst()) {
+            do {
+                String t = c.getString(0);
+                if (t != null && !t.isEmpty()) list.add(t);
+            } while (c.moveToNext());
+        }
+        c.close(); db.close();
+        return list;
+    }
+
+    /** Tổng tongLuong trong tháng MM/yy */
     public double getTongTienLuongTheoThang(String thang) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(
@@ -514,81 +483,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         c.close(); db.close();
         return total;
     }
+
     // ════════════════════════════════════════════════
-//   HÀM LẤY DANH SÁCH MÃ CHO SPINNER
-// ════════════════════════════════════════════════
-
-    /** Lấy danh sách maNCC từ NHA_CUNG_CAP để hiển thị Spinner */
-    public List<String> getAllMaNCC() {
-        List<String> list = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery(
-                "SELECT maNCC, tenNCC FROM NHA_CUNG_CAP ORDER BY maNCC", null);
-        if (c.moveToFirst()) {
-            do {
-                // Hiển thị: 'NCC001 - Tên NCC' để dễ nhận biết
-                list.add(c.getString(0) + " - " + c.getString(1));
-            } while (c.moveToNext());
-        }
-        c.close(); db.close();
-        return list;
-    }
-
-    /** Lấy danh sách maSanpham từ SAN_PHAM để hiển thị Spinner */
-    public List<String> getAllMaSanPham() {
-        List<String> list = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery(
-                "SELECT maSanpham, tenSanpham FROM SAN_PHAM ORDER BY maSanpham", null);
-        if (c.moveToFirst()) {
-            do {
-                list.add(c.getString(0) + " - " + c.getString(1));
-            } while (c.moveToNext());
-        }
-        c.close(); db.close();
-        return list;
-    }
-
-    /** Lấy danh sách maNhanVien từ NHAN_VIEN để hiển thị Spinner */
-    public List<String> getAllMaNhanVien() {
-        List<String> list = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor c = db.rawQuery(
-                "SELECT maNhanVien, hoTen FROM NHAN_VIEN ORDER BY maNhanVien", null);
-        if (c.moveToFirst()) {
-            do {
-                list.add(c.getString(0) + " - " + c.getString(1));
-            } while (c.moveToNext());
-        }
-        c.close(); db.close();
-        return list;
-    }
+    //              QUERY THỐNG KÊ — HÓA ĐƠN
+    // ════════════════════════════════════════════════
 
     /**
-     * Lấy phần mã (trước dấu ' - ') từ chuỗi Spinner.
-     * VD: 'NCC001 - Cty ABC' → 'NCC001'
-     * Dùng sau khi lấy getSelectedItem() từ Spinner.
-     */
-    public static String layMaTuSpinner(String spinnerItem) {
-        if (spinnerItem == null || spinnerItem.isEmpty()) return "";
-        int idx = spinnerItem.indexOf(" - ");
-        if (idx >= 0) return spinnerItem.substring(0, idx).trim();
-        return spinnerItem.trim();
-    }
-    /**
-     * Lấy danh sách tháng từ HOA_DON.ngayTaohoadon.
-     * ngayTaohoadon lưu dạng 'yyyy-MM-dd' hoặc 'dd/MM/yyyy'.
+     * Lấy danh sách tháng MM/yy từ HOA_DON.
+     * Hỗ trợ 3 định dạng: yyyy-MM-dd | dd/MM/yyyy | dd/MM/yy
+     * FIX: Trước đây spinner trống vì định dạng không khớp.
      */
     public List<String> getDanhSachThangHoaDon() {
         List<String> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String q = "SELECT DISTINCT " +
-                "CASE " +
-                "  WHEN ngayTaohoadon LIKE '____-__-__' " +
-                "       THEN strftime('%m-%Y', ngayTaohoadon) " +
-                "  WHEN ngayTaohoadon LIKE '__/__/____' " +
-                "       THEN SUBSTR(ngayTaohoadon,4,2)||'-'||SUBSTR(ngayTaohoadon,7,4) " +
-                "  ELSE NULL END AS thang " +
+        String q = "SELECT DISTINCT " + THANG_HD + " AS thang " +
                 "FROM HOA_DON " +
                 "WHERE ngayTaohoadon IS NOT NULL AND ngayTaohoadon != '' " +
                 "ORDER BY thang DESC";
@@ -603,22 +511,95 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    /** Tổng tongTienTT trong HOA_DON theo tháng (MM-yyyy) */
+    /**
+     * Tổng tongTienTT từ HOA_DON theo tháng MM/yy.
+     * Gộp tất cả hóa đơn cùng tháng (kể cả nhiều bản ghi cùng MM/yy).
+     */
     public double getTongTienBanHangTheoThang(String thang) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String q = "SELECT IFNULL(SUM(tongTienTT), 0) FROM HOA_DON WHERE " +
-                "(CASE " +
-                "  WHEN ngayTaohoadon LIKE '____-__-__' " +
-                "       THEN strftime('%m-%Y', ngayTaohoadon) " +
-                "  WHEN ngayTaohoadon LIKE '__/__/____' " +
-                "       THEN SUBSTR(ngayTaohoadon,4,2)||'-'||SUBSTR(ngayTaohoadon,7,4) " +
-                "  ELSE NULL END) = ?";
-        Cursor c = db.rawQuery(q, new String[]{thang});
+        Cursor c = db.rawQuery(
+                "SELECT IFNULL(SUM(tongTienTT),0) FROM HOA_DON " +
+                        "WHERE " + THANG_HD + " = ?",
+                new String[]{thang});
         double total = 0;
         if (c.moveToFirst()) total = c.getDouble(0);
         c.close(); db.close();
         return total;
     }
 
-}
+    // ════════════════════════════════════════════════
+    //              THỐNG KÊ CHUNG (legacy)
+    // ════════════════════════════════════════════════
 
+    public double getTongTienKho() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(soLuong * donGia) FROM CHI_TIET_PHIEU_KHO " +
+                        "JOIN PHIEU_KHO ON CHI_TIET_PHIEU_KHO.maPhieu = PHIEU_KHO.maPhieu " +
+                        "WHERE loaiPhieu = 'NHAP'", null);
+        double tong = 0;
+        if (cursor.moveToFirst()) tong = cursor.getDouble(0);
+        cursor.close();
+        return tong;
+    }
+
+    public double getTongTienBanHang() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT SUM(tongTienTT) FROM HOA_DON", null);
+        double tong = 0;
+        if (cursor.moveToFirst()) tong = cursor.getDouble(0);
+        cursor.close();
+        return tong;
+    }
+
+    // ════════════════════════════════════════════════
+    //   HÀM LẤY DANH SÁCH MÃ CHO SPINNER
+    // ════════════════════════════════════════════════
+
+    public List<String> getAllMaNCC() {
+        List<String> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT maNCC, tenNCC FROM NHA_CUNG_CAP ORDER BY maNCC", null);
+        if (c.moveToFirst()) {
+            do { list.add(c.getString(0) + " - " + c.getString(1)); } while (c.moveToNext());
+        }
+        c.close(); db.close();
+        return list;
+    }
+
+    public List<String> getAllMaSanPham() {
+        List<String> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT maSanpham, tenSanpham FROM SAN_PHAM ORDER BY maSanpham", null);
+        if (c.moveToFirst()) {
+            do { list.add(c.getString(0) + " - " + c.getString(1)); } while (c.moveToNext());
+        }
+        c.close(); db.close();
+        return list;
+    }
+
+    public List<String> getAllMaNhanVien() {
+        List<String> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery(
+                "SELECT maNhanVien, hoTen FROM NHAN_VIEN ORDER BY maNhanVien", null);
+        if (c.moveToFirst()) {
+            do { list.add(c.getString(0) + " - " + c.getString(1)); } while (c.moveToNext());
+        }
+        c.close(); db.close();
+        return list;
+    }
+
+    /**
+     * Lấy phần mã (trước ' - ') từ chuỗi Spinner.
+     * VD: 'NCC001 - Cty ABC' → 'NCC001'
+     */
+    public static String layMaTuSpinner(String spinnerItem) {
+        if (spinnerItem == null || spinnerItem.isEmpty()) return "";
+        int idx = spinnerItem.indexOf(" - ");
+        if (idx >= 0) return spinnerItem.substring(0, idx).trim();
+        return spinnerItem.trim();
+    }
+}

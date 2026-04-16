@@ -10,16 +10,17 @@ import java.util.List;
 
 public class ThongKeActivity extends AppCompatActivity {
 
-    // ── KHỐI 1: Phiếu Kho ──
+    // Khối 1: Phiếu Kho
     private Spinner  spinnerThangPK;
-    private TextView tvTongTienPhieuKho;
-    private List<String> dsThangPK; // Danh sách tháng từ PHIEU_KHO
+    private TextView tvTongTienPhieuKho, tvTongTienNhap, tvTongTienXuat;
+    private List<String> dsThangPK;
 
-    // ── KHỐI 2: Lương ──
+    // Khối 2: Lương
     private Spinner  spinnerThangLuong;
     private TextView tvTongTienLuong;
-    private List<String> dsThangLuong; // Danh sách tháng từ BANG_LUONG
-    // ── KHỐI 3: Hóa Đơn ──
+    private List<String> dsThangLuong;
+
+    // Khối 3: Hóa Đơn
     private Spinner  spinnerThangHD;
     private TextView tvTongTienBanHang;
     private List<String> dsThangHD;
@@ -34,112 +35,113 @@ public class ThongKeActivity extends AppCompatActivity {
 
         db = new DatabaseHelper(this);
 
-        // ── Ánh xạ View ──
-        spinnerThangPK     = findViewById(R.id.spinnerThangPK);
-        spinnerThangHD     = findViewById(R.id.spinnerThangHD);
-        tvTongTienBanHang  = findViewById(R.id.tvTongTienBanHang);
-        tvTongTienPhieuKho = findViewById(R.id.tvTongTienPhieuKho);
-        spinnerThangLuong  = findViewById(R.id.spinnerThangLuong);
-        tvTongTienLuong    = findViewById(R.id.tvTongTienLuong);
+        spinnerThangPK      = findViewById(R.id.spinnerThangPK);
+        tvTongTienPhieuKho  = findViewById(R.id.tvTongTienPhieuKho);
+        tvTongTienNhap      = findViewById(R.id.tvTongTienNhap);
+        tvTongTienXuat      = findViewById(R.id.tvTongTienXuat);
 
-        // ════════════════════════════════════
-        //  KHỐI 1: THỐNG KÊ PHIẾU KHO
-        // ════════════════════════════════════
-        dsThangPK = db.getDanhSachThangPhieuKho(); // Chỉ lấy tháng từ PHIEU_KHO
+        spinnerThangLuong   = findViewById(R.id.spinnerThangLuong);
+        tvTongTienLuong     = findViewById(R.id.tvTongTienLuong);
 
+        spinnerThangHD      = findViewById(R.id.spinnerThangHD);
+        tvTongTienBanHang   = findViewById(R.id.tvTongTienBanHang);
+
+        setupKhoiPhieuKho();
+        setupKhoiLuong();
+        setupKhoiHoaDon();
+    }
+
+    // ════════════════════════════════════
+    //  KHỐI 1: PHIẾU KHO (chỉ đã thanh toán, tách NHẬP/XUẤT)
+    // ════════════════════════════════════
+    private void setupKhoiPhieuKho() {
+        dsThangPK = db.getDanhSachThangPhieuKho();
         if (dsThangPK.isEmpty()) {
-            // Không có dữ liệu phiếu kho
             spinnerThangPK.setEnabled(false);
-            tvTongTienPhieuKho.setText("Tổng tiền phiếu kho: Chưa có dữ liệu");
-        } else {
-            ArrayAdapter<String> adapterPK = new ArrayAdapter<>(this,
-                    android.R.layout.simple_spinner_item, dsThangPK);
-            adapterPK.setDropDownViewResource(
-                    android.R.layout.simple_spinner_dropdown_item);
-            spinnerThangPK.setAdapter(adapterPK);
-
-            // Khi chọn tháng → cập nhật tổng tiền phiếu kho
-            spinnerThangPK.setOnItemSelectedListener(
-                    new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> parent,
-                                                   View view, int pos, long id) {
-                            String thang = dsThangPK.get(pos);
-                            double tong = db.getTongTienPhieuKhoTheoThang(thang);
-                            tvTongTienPhieuKho.setText(
-                                    "Tổng tiền phiếu kho (" + thang + "):\n" +
-                                            String.format("%,.0f", tong) + " đ");
-                        }
-                        @Override
-                        public void onNothingSelected(AdapterView<?> parent) {}
-                    }
-            );
+            tvTongTienPhieuKho.setText("Tổng tiền: Chưa có phiếu đã thanh toán");
+            tvTongTienNhap.setText("↓ Tiền nhập kho: --");
+            tvTongTienXuat.setText("↑ Tiền xuất kho: --");
+            return;
         }
 
-        // ════════════════════════════════════
-        //  KHỐI 2: THỐNG KÊ LƯƠNG
-        // ════════════════════════════════════
-        dsThangLuong = db.getDanhSachThangBangLuong(); // Chỉ lấy tháng từ BANG_LUONG
+        ArrayAdapter<String> ad = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, dsThangPK);
+        ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerThangPK.setAdapter(ad);
 
+        spinnerThangPK.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                String thang = dsThangPK.get(pos);
+
+                double tongTat  = db.getTongTienPhieuKhoTheoThang(thang);
+                double tongNhap = db.getTongTienNhapTheoThang(thang);
+                double tongXuat = db.getTongTienXuatTheoThang(thang);
+
+                tvTongTienPhieuKho.setText(
+                        "Tổng tiền (" + thang + "): " +
+                                String.format("%,.0f", tongTat) + " đ");
+
+                tvTongTienNhap.setText(
+                        "↓ Tiền nhập kho: " +
+                                String.format("%,.0f", tongNhap) + " đ");
+
+                tvTongTienXuat.setText(
+                        "↑ Tiền xuất kho: " +
+                                String.format("%,.0f", tongXuat) + " đ");
+            }
+            public void onNothingSelected(AdapterView<?> p) {}
+        });
+    }
+
+    // ════════════════════════════════════
+    //  KHỐI 2: LƯƠNG
+    // ════════════════════════════════════
+    private void setupKhoiLuong() {
+        dsThangLuong = db.getDanhSachThangBangLuong();
         if (dsThangLuong.isEmpty()) {
-            // Không có dữ liệu bảng lương
             spinnerThangLuong.setEnabled(false);
             tvTongTienLuong.setText("Tổng tiền lương: Chưa có dữ liệu");
-        } else {
-            ArrayAdapter<String> adapterLuong = new ArrayAdapter<>(this,
-                    android.R.layout.simple_spinner_item, dsThangLuong);
-            adapterLuong.setDropDownViewResource(
-                    android.R.layout.simple_spinner_dropdown_item);
-            spinnerThangLuong.setAdapter(adapterLuong);
-
-            // Khi chọn tháng → cập nhật tổng tiền lương
-            spinnerThangLuong.setOnItemSelectedListener(
-                    new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> parent,
-                                                   View view, int pos, long id) {
-                            String thang = dsThangLuong.get(pos);
-                            double tong = db.getTongTienLuongTheoThang(thang);
-                            tvTongTienLuong.setText(
-                                    "Tổng tiền lương (" + thang + "):\n" +
-                                            String.format("%,.0f", tong) + " đ");
-                        }
-                        @Override
-                        public void onNothingSelected(AdapterView<?> parent) {}
-                    }
-            );
+            return;
         }
-        // ════════════════════════════════════
-//  KHỐI 3: THỐNG KÊ BÁN HÀNG HOA_DON
-// ════════════════════════════════════
-        dsThangHD = db.getDanhSachThangHoaDon();
+        ArrayAdapter<String> ad = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, dsThangLuong);
+        ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerThangLuong.setAdapter(ad);
 
+        spinnerThangLuong.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                double tong = db.getTongTienLuongTheoThang(dsThangLuong.get(pos));
+                tvTongTienLuong.setText(
+                        "Tổng tiền lương (" + dsThangLuong.get(pos) + "):\n" +
+                                String.format("%,.0f", tong) + " đ");
+            }
+            public void onNothingSelected(AdapterView<?> p) {}
+        });
+    }
+
+    // ════════════════════════════════════
+    //  KHỐI 3: HÓA ĐƠN — FIX SPINNER TRỐNG + FORMAT MM/yy
+    // ════════════════════════════════════
+    private void setupKhoiHoaDon() {
+        dsThangHD = db.getDanhSachThangHoaDon();
         if (dsThangHD.isEmpty()) {
             spinnerThangHD.setEnabled(false);
             tvTongTienBanHang.setText("Tổng tiền bán hàng: Chưa có dữ liệu");
-        } else {
-            ArrayAdapter<String> adapterHD = new ArrayAdapter<>(this,
-                    android.R.layout.simple_spinner_item, dsThangHD);
-            adapterHD.setDropDownViewResource(
-                    android.R.layout.simple_spinner_dropdown_item);
-            spinnerThangHD.setAdapter(adapterHD);
-
-            spinnerThangHD.setOnItemSelectedListener(
-                    new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> parent,
-                                                   View view, int pos, long id) {
-                            String thang = dsThangHD.get(pos);
-                            double tong = db.getTongTienBanHangTheoThang(thang);
-                            tvTongTienBanHang.setText(
-                                    "Tổng tiền bán hàng (" + thang + "):\n" +
-                                            String.format("%,.0f", tong) + " đ");
-                        }
-                        @Override
-                        public void onNothingSelected(AdapterView<?> parent) {}
-                    }
-            );
+            return;
         }
+        ArrayAdapter<String> ad = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, dsThangHD);
+        ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerThangHD.setAdapter(ad);
 
+        spinnerThangHD.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                double tong = db.getTongTienBanHangTheoThang(dsThangHD.get(pos));
+                tvTongTienBanHang.setText(
+                        "Tổng tiền bán hàng (" + dsThangHD.get(pos) + "):\n" +
+                                String.format("%,.0f", tong) + " đ");
+            }
+            public void onNothingSelected(AdapterView<?> p) {}
+        });
     }
 }

@@ -10,7 +10,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- ===== TIÊU ĐỀ ===== -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +32,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📦  THỐNG KÊ PHIẾU KHO"
+                android:text="📦  THỐNG KÊ PHIẾU KHO (ĐÃ THANH TOÁN)"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#2E75B6"
@@ -42,26 +41,47 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chọn tháng:"
+                android:text="Chọn tháng (MM/yy):"
                 android:textStyle="bold"
                 android:layout_marginBottom="4dp"/>
 
-            <!-- Spinner riêng cho Phiếu Kho -->
             <Spinner android:id="@+id/spinnerThangPK"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:drawable/btn_dropdown"
                 android:layout_marginBottom="10dp"/>
 
-            <!-- Kết quả tổng tiền phiếu kho -->
+            <!-- Tổng tất cả phiếu đã thanh toán -->
             <TextView android:id="@+id/tvTongTienPhieuKho"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tổng tiền phiếu kho: --"
+                android:text="Tổng tiền: --"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="#2E75B6"
                 android:background="#FFFFFF"
+                android:padding="10dp"
+                android:layout_marginBottom="6dp"/>
+
+            <!-- Tổng tiền NHẬP -->
+            <TextView android:id="@+id/tvTongTienNhap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="↓ Tiền nhập kho: --"
+                android:textSize="14sp"
+                android:textColor="#145A32"
+                android:background="#D5F5E3"
+                android:padding="10dp"
+                android:layout_marginBottom="6dp"/>
+
+            <!-- Tổng tiền XUẤT -->
+            <TextView android:id="@+id/tvTongTienXuat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="↑ Tiền xuất kho: --"
+                android:textSize="14sp"
+                android:textColor="#7B241C"
+                android:background="#FADBD8"
                 android:padding="10dp"/>
         </LinearLayout>
 
@@ -86,18 +106,16 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chọn tháng:"
+                android:text="Chọn tháng (MM/yy):"
                 android:textStyle="bold"
                 android:layout_marginBottom="4dp"/>
 
-            <!-- Spinner riêng cho Lương -->
             <Spinner android:id="@+id/spinnerThangLuong"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@android:drawable/btn_dropdown"
                 android:layout_marginBottom="10dp"/>
 
-            <!-- Kết quả tổng tiền lương -->
             <TextView android:id="@+id/tvTongTienLuong"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -108,7 +126,8 @@
                 android:background="#FFFFFF"
                 android:padding="10dp"/>
         </LinearLayout>
-        <!-- ===== KHỐI 3: THỐNG KÊ TỔNG TIỀN BÁN HÀNG ===== -->
+
+        <!-- ===== KHỐI 3: THỐNG KÊ HÓA ĐƠN ===== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -129,7 +148,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chọn tháng:"
+                android:text="Chọn tháng (MM/yy):"
                 android:textStyle="bold"
                 android:layout_marginBottom="4dp"/>
 
@@ -148,10 +167,7 @@
                 android:textColor="#7F4F00"
                 android:background="#FFFFFF"
                 android:padding="10dp"/>
-
         </LinearLayout>
-
 
     </LinearLayout>
 </ScrollView>
-
